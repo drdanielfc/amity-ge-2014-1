@@ -167,104 +167,32 @@ public class AmityAI implements AI
  */
 class FinalRater extends BoardRater
 {
-    /**
-     * Holds a coefficient-rater pair
-     * 
-     * @author Mike Zuo
-     * 
-     */
-    private static class RaterPair
-    {
-        private double     coeff;
-        private BoardRater rater;
+    public static BoardRater raters[]     = { new ConsecHorzHoles(), new HeightAvg(), new HeightMax(), new HeightMinMax(), new HeightVar(), new HeightStdDev(), new SimpleHoles(), new ThreeVariance(), new Through(), new WeightedHoles(), new RowsWithHolesInMostHoledColumn(), new AverageSquaredTroughHeight(), new BlocksAboveHoles() };
 
-        private RaterPair(final double coeff, final BoardRater rater)
-        {
-            this.coeff = coeff;
-            this.rater = rater;
-        }
-    }
+    public double[]          coefficients = { 0.5122618836597426, 0.17516377132237726, 0.5809266976532828, 0.5166052958097598, 0.19427865718632464, -0.054743459627535324, 0.9739233692440133, 0.3108976644216631, 0.5945106189776568, 0.4509450257992734, 0.8887034350255546, 0.8036332723722333, 0.03162311457583533 };
 
-    /**
-     * These are the default raters and coefficients. The coefficients were generated using {@link GeneticCoefficientFinder}.
-     */
-    // @formatter:off
-    
-    private static final RaterPair[] DEFAULT_RATERS = {                         // Our best coefficients as of March 24 @ 3:28pm
-        new RaterPair(0.5122618836597426,   new ConsecHorzHoles()),
-        new RaterPair(0.17516377132237726,   new HeightAvg()),
-        new RaterPair(0.5809266976532828,    new HeightMax()),
-        new RaterPair(0.5166052958097598,  new HeightMinMax()),
-        new RaterPair(0.19427865718632464,   new HeightVar()),
-        new RaterPair(-0.054743459627535324, new HeightStdDev()),
-        
-        new RaterPair(0.9739233692440133,   new SimpleHoles()),
-        new RaterPair(0.3108976644216631,    new ThreeVariance()),
-        new RaterPair(0.5945106189776568,  new Through()),
-        new RaterPair(0.4509450257992734,  new WeightedHoles()),
-        new RaterPair(0.8887034350255546,   new RowsWithHolesInMostHoledColumn()),
-        new RaterPair(0.8036332723722333,    new AverageSquaredTroughHeight()),
-        new RaterPair(0.03162311457583533, new BlocksAboveHoles())
-     };
-    
-//    private static final RaterPair[] DEFAULT_RATERS = {                       // Best constants from Tetris-AI
-//        new RaterPair(0.41430724103382527,   new ConsecHorzHoles()),
-//        new RaterPair(0.04413383739389207,   new HeightAvg()),
-//        new RaterPair(0.1420172532064692,    new HeightMax()),
-//        new RaterPair(-0.13881428312611474,  new HeightMinMax()),
-//        new RaterPair(0.06887679285238696,   new HeightVar()),
-//        new RaterPair(-0.052368130931930074, new HeightStdDev()),
-//        new RaterPair(0.33235754477242435,   new SimpleHoles()),
-//        new RaterPair(0.2851778629665227,    new ThreeVariance()),
-//        new RaterPair(-0.03011693088344261,  new Through()),
-//        new RaterPair(-0.02534983335709433,  new WeightedHoles()),
-//        new RaterPair(0.21155050264421074,   new RowsWithHolesInMostHoledColumn()),
-//        new RaterPair(0.8292064267563932,    new AverageSquaredTroughHeight()),
-//        new RaterPair(0.0038145282373974604, new BlocksAboveHoles())
-//     };
-     // @formatter:on
-
-    private RaterPair[]              raters;
-
-    /**
-     * Initializes the {@link FinalRater} using the default rater coefficients
-     */
     public FinalRater()
     {
-        this.raters = FinalRater.DEFAULT_RATERS;
     }
 
-    /**
-     * Initializes the {@link FinalRater}
-     * 
-     * @param c Array of coefficients which map up to raters in DEFAULT_RATERS as a parallel array
-     */
     public FinalRater(final double[] c)
     {
-        this();
-
-        if (c.length != FinalRater.DEFAULT_RATERS.length)
+        if (c.length != FinalRater.raters.length)
         {
-            System.err.println("Make sure that the array passed into the FinalRater has the correct number of coefficients! Using DEFAULT COEFFICIENTS instead!");
+            System.out.println("Make sure that the array passed into the FinalRater has the correct number of coefficients! Using DEFAULT COEFFICIENTS instead!");
             return;
         }
-
-        this.raters = new RaterPair[FinalRater.DEFAULT_RATERS.length];
-
-        for (int i = 0; i < c.length; i++)
-        {
-            this.raters[i] = new RaterPair(c[i], FinalRater.DEFAULT_RATERS[i].rater);
-        }
+        this.coefficients = c;
     }
 
     @Override
     public double rate(final Board board)
     {
-        double score = 0;
-
-        for (final RaterPair rater : this.raters)
-            score += rater.coeff * rater.rater.rate(board);
-
+        double score = 0, temp;
+        for (int x = 0; x < FinalRater.raters.length; x++)
+        {
+            score += (temp = this.coefficients[x]) == 0 ? 0 : temp * FinalRater.raters[x].rate(board);
+        }
         return score;
     }
 }

@@ -88,10 +88,8 @@ public class RunTetris extends JComponent {
 		
 		countLabel.setText(Integer.toString(tc.count) + " Moves");
                 rowsClearedLabel.setText(tc.rowsCleared + " Rows Cleared");
-                //difficulty.setText(Integer.toString(tc.difficulty));
-		nextPiecePanel.setPiece(tc.nextPiece);    
-		
-		repaint();
+//		nextPiecePanel.setPiece(tc.nextPiece);    
+//		repaint();
 	}
 
 	/**
